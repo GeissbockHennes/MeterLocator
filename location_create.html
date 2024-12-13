@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Standort ermitteln</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            min-height: 100vh;
+            background-color: #f4f4f9;
+        }
+        .container {
+            width: 90%;
+            max-width: 800px;
+            text-align: center;
+            margin-top: 20px;
+        }
+        .btn {
+            padding: 15px 25px;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            background-color: #0078d4;
+            color: white;
+            margin-bottom: 20px;
+        }
+        .btn:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+        .input-container {
+            margin: 20px 0;
+            text-align: center;
+        }
+        input {
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            width: calc(100% - 22px);
+            max-width: 400px;
+            background-color: #f4f4f9;
+            color: #333;
+        }
+        input:disabled {
+            cursor: not-allowed;
+        }
+        #map {
+            width: 100%;
+            height: 50vh;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Standort ermitteln</h1>
+        <div class="input-container">
+            <input id="coordinate-input" type="text" placeholder="Koordinaten werden hier angezeigt" disabled>
+            <button id="locate-btn" class="btn">Standort ermitteln</button>
+        </div>
+        <div id="map"></div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
+    <script>
+        const locateBtn = document.getElementById('locate-btn');
+        const coordinateInput = document.getElementById('coordinate-input');
+        const mapDiv = document.getElementById('map');
+
+        let map;
+        let marker;
+
+        // Initialize the map
+        function initMap() {
+            map = L.map(mapDiv).setView([51.1657, 10.4515], 10); // Center on Germany
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap contributors'
+            }).addTo(map);
+        }
+
+        // Locate and display current location
+        function locateCurrentPosition() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(position => {
+                    const { latitude, longitude } = position.coords;
+                    const lat = latitude.toFixed(5);
+                    const lng = longitude.toFixed(5);
+
+                    // Update input field
+                    coordinateInput.value = `${lat}, ${lng}`;
+
+                    // Copy to clipboard
+                    navigator.clipboard.writeText(`${lat}, ${lng}`).catch(err => {
+                        console.error('Fehler beim Kopieren der Koordinaten:', err);
+                    });
+
+                    // Update map
+                    const location = [latitude, longitude];
+                    if (!marker) {
+                        marker = L.marker(location).addTo(map);
+                    } else {
+                        marker.setLatLng(location);
+                    }
+
+                    map.setView(location, 18);
+
+                    // Update button
+                    locateBtn.textContent = 'Standort in Zwischenablage kopiert';
+                    locateBtn.disabled = true;
+                }, error => {
+                    alert('Fehler beim Abrufen der Standortdaten. Bitte versuchen Sie es erneut.');
+                });
+            } else {
+                alert('Geolocation wird von diesem Gerät nicht unterstützt.');
+            }
+        }
+
+        // Event listener
+        locateBtn.addEventListener('click', () => {
+            if (!map) initMap();
+            locateCurrentPosition();
+        });
+
+        // Initialize map on page load
+        initMap();
+    </script>
+</body>
+</html>
