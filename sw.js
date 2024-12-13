@@ -3,7 +3,6 @@ self.addEventListener('install', (event) => {
     event.waitUntil(
         caches.open('meterlocator-cache').then((cache) => {
             return cache.addAll([
-                './',
                 './index.html',
                 './location_create.html',
                 './location_find.html',
