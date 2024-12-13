@@ -1,7 +1,7 @@
 {
     "name": "MeterLocator",
     "short_name": "MeterLocator",
-    "start_url": "./",
+    "start_url": "./", "scope": "./", "display": "standalone",
     "display": "standalone",
     "background_color": "#f4f4f9",
     "theme_color": "#0078d4",
