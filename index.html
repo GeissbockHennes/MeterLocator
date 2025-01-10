@@ -1,0 +1,95 @@
+
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#4CAF50">
+    <title>PWA Standort-Ermittler</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css">
+    <link rel="manifest" href="manifest.json">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            background-color: #f5f5f5;
+        }
+        #map {
+            height: 300px;
+            width: 90%;
+            margin-top: 20px;
+            border: 1px solid #ddd;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 5px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .coordinates {
+            margin-top: 15px;
+            font-size: 16px;
+        }
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <h1>Standort-Ermittler</h1>
+    <button id="get-location">Standort ermitteln</button>
+    <div class="coordinates hidden" id="coordinates"></div>
+    <div id="map" class="hidden"></div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
+    <script>
+        const button = document.getElementById('get-location');
+        const coordinatesDiv = document.getElementById('coordinates');
+        const mapDiv = document.getElementById('map');
+        let map;
+        button.addEventListener('click', () => {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(position => {
+                    const lat = position.coords.latitude.toFixed(5);
+                    const lon = position.coords.longitude.toFixed(5);
+                    coordinatesDiv.textContent = `Breitengrad: ${lat}, Längengrad: ${lon}`;
+                    coordinatesDiv.classList.remove('hidden');
+                    navigator.clipboard.writeText(`${lat}, ${lon}`).then(() => {
+                        alert('Koordinaten in den Zwischenspeicher kopiert!');
+                    });
+                    mapDiv.classList.remove('hidden');
+                    if (!map) {
+                        map = L.map('map').setView([lat, lon], 13);
+                        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                            maxZoom: 19,
+                            attribution: '© OpenStreetMap-Mitwirkende'
+                        }).addTo(map);
+                        L.marker([lat, lon]).addTo(map)
+                            .bindPopup('Ihr Standort').openPopup();
+                    } else {
+                        map.setView([lat, lon], 13);
+                        L.marker([lat, lon]).addTo(map)
+                            .bindPopup('Ihr Standort').openPopup();
+                    }
+                }, error => {
+                    alert('Standort konnte nicht ermittelt werden. Bitte aktivieren Sie die Standortdienste.');
+                });
+            } else {
+                alert('Geolocation wird von Ihrem Browser nicht unterstützt.');
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,16 @@
+
+{
+    "name": "Standort-Ermittler",
+    "short_name": "Standort",
+    "start_url": "./index.html",
+    "display": "standalone",
+    "background_color": "#4CAF50",
+    "description": "Ermittle deinen Standort und zeige ihn auf einer Karte an.",
+    "icons": [
+        {
+            "src": "icon.png",
+            "sizes": "1024x1024",
+            "type": "image/png"
+        }
+    ]
+}
